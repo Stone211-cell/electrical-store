@@ -109,7 +109,7 @@ export default function Hero() {
 
               {/* Headline */}
               <h1
-                className="text-5xl md:text-6xl lg:text-7xl font-black text-slate-800 leading-[1.1] tracking-tight gsap-fade-up-2"
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-800 leading-[1.1] tracking-tight gsap-fade-up-2"
                 style={{ fontFamily: "var(--font-outfit)" }}
               >
                 ศูนย์รวม<br className="hidden sm:block" />

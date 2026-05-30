@@ -51,7 +51,11 @@ export default function RootLayout({
       lang="th"
       className={`${inter.variable} ${outfit.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background">{children}</body>
+      <body className="min-h-full flex flex-col bg-background overflow-x-hidden w-full relative">
+        <div className="flex-1 w-full overflow-x-hidden">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }
