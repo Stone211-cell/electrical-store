@@ -2,20 +2,19 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   IconBolt,
   IconShoppingCart,
   IconSearch,
   IconMenu2,
   IconX,
-  IconPhone,
   IconChevronDown,
   TopBarIcons,
   PhoneIcon,
-
-
 } from "@/components/icon";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/contexts/cart-context";
 
 const navLinks = [
   { label: "หน้าหลัก", href: "/" },
@@ -42,6 +41,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const { totalCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -146,13 +146,31 @@ export default function Navbar() {
                 <span className="text-sm text-slate-400 group-hover:text-sky-500 transition-colors">ค้นหาสินค้า...</span>
               </div>
 
-              {/* Cart */}
-              <button className="relative p-2.5 rounded-xl hover:bg-sky-50 transition-colors group">
-                <IconShoppingCart size={22} className="text-slate-600 group-hover:text-sky-600 transition-colors" />
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
-                  3
-                </span>
-              </button>
+              {/* Cart — glowing badge + link to /cart */}
+              <Link
+                href="/cart"
+                className="relative p-2.5 rounded-xl hover:bg-sky-50 transition-colors group"
+                aria-label="ตะกร้าสินค้า"
+              >
+                <IconShoppingCart
+                  size={22}
+                  className="text-slate-600 group-hover:text-sky-600 transition-colors"
+                />
+                <AnimatePresence>
+                  {totalCount > 0 && (
+                    <motion.span
+                      key={totalCount}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                      className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[10px] font-black flex items-center justify-center shadow-lg shadow-rose-400/50 ring-2 ring-white"
+                    >
+                      {totalCount > 99 ? "99+" : totalCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Link>
 
               {/* CTA Button */}
               <Link

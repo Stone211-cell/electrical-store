@@ -1,4 +1,4 @@
-﻿/**
+/**
  * icon.tsx — Centralized Icon & Contact Channel Config
  *
  * ✅ ใช้ไฟล์นี้เป็น single source of truth สำหรับ:
@@ -66,6 +66,7 @@ export {
 
     // Misc
     IconBuildingStore,
+    IconCheck,
     IconClock,
     IconQuote,
     IconTruck,

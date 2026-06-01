@@ -1,8 +1,3 @@
-// ── Layout ────────────────────────────────────────────
-import Navbar from "@/components/layout/navbar";
-import Footer from "@/components/layout/footer";
-import FloatingContact from "@/components/layout/floating-contact";
-
 // ── Sections ──────────────────────────────────────────
 import Hero from "@/components/sections/hero";
 import Stats from "@/components/sections/stats";
@@ -16,21 +11,14 @@ import Testimonials from "@/components/sections/testimonials";
 export default function Home() {
   return (
     <>
-      <Navbar />
-      <main>
-        <Hero />
-        <Stats />
-        <Categories />
-        <Products />
-        <PromoBanner />
-        <Brands />
-        <Features />
-        <Testimonials />
-      </main>
-      <Footer />
-
-      {/* Fixed floating contact FAB */}
-      <FloatingContact />
+      <Hero />
+      <Stats />
+      <Categories />
+      <Products />
+      <PromoBanner />
+      <Brands />
+      <Features />
+      <Testimonials />
     </>
   );
 }

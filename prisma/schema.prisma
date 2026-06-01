@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  name          String
+  brand         String
+  description   String?
+  price         Float
+  originalPrice Float
+  rating        Float    @default(0)
+  reviews       Int      @default(0)
+  images        String[] // array of image URLs, first = main image
+  badges        String[] // ["hot", "new", "sale"]
+  inStock       Boolean  @default(true)
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  excerpt   String
+  content   String   @db.Text
+  imageUrl  String?
+  category  String
+  author    String   @default("ElectroMax Team")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id           String   @id @default(cuid())
+  customerNote String?
+  items        Json     // [{id, name, price, quantity, image}]
+  totalPrice   Float
+  status       String   @default("pending") // pending, confirmed, shipped, done
+  lineOaUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

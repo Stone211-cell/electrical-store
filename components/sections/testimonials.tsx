@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { IconStarFilled, IconQuote } from "@/components/icon";
 import {
@@ -8,10 +9,31 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";import { testimonials } from "@/lib/comment";
-
+  type CarouselApi,
+} from "@/components/ui/carousel";
+import { testimonials } from "@/lib/comment";
 
 export default function Testimonials() {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
+
+  // จำนวน dots ที่แสดง (เท่ากับ scroll snaps จริง)
+  useEffect(() => {
+    if (!api) return;
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap());
+
+    const onSelect = () => setCurrent(api.selectedScrollSnap());
+    api.on("select", onSelect);
+    return () => { api.off("select", onSelect); };
+  }, [api]);
+
+  const scrollTo = useCallback(
+    (index: number) => api?.scrollTo(index),
+    [api]
+  );
+
   return (
     <section className="py-20 bg-slate-50 relative">
       {/* Decorative */}
@@ -21,7 +43,7 @@ export default function Testimonials() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
         {/* Heading */}
         <motion.div
-          initial={{ opacity: 1, y: 30 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -45,14 +67,12 @@ export default function Testimonials() {
         {/* Carousel */}
         <div className="px-4 md:px-12">
           <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
+            setApi={setApi}
+            opts={{ align: "start", loop: true }}
             className="w-full"
           >
             <CarouselContent className="-ml-4">
-              {testimonials.map((t, i) => (
+              {testimonials.map((t) => (
                 <CarouselItem key={t.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
                   <div className="h-full bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col">
                     {/* Quote icon */}
@@ -74,12 +94,16 @@ export default function Testimonials() {
 
                     {/* Footer */}
                     <div className="flex items-center gap-3 pt-4 border-t border-slate-100 mt-auto">
-                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${t.avatarColor} flex items-center justify-center text-white text-sm font-bold shrink-0`}>
+                      <div
+                        className={`w-10 h-10 rounded-xl bg-gradient-to-br ${t.avatarColor} flex items-center justify-center text-white text-sm font-bold shrink-0`}
+                      >
                         {t.avatar}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-slate-800 text-sm truncate">{t.name}</p>
-                        <p className="text-xs text-slate-400 truncate">{t.role} • {t.location}</p>
+                        <p className="text-xs text-slate-400 truncate">
+                          {t.role} • {t.location}
+                        </p>
                       </div>
                       {t.verified && (
                         <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold shrink-0">
@@ -91,15 +115,27 @@ export default function Testimonials() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            
-            {/* Custom styled prominent buttons */}
+
+            {/* Navigation: Prev + Dots + Next */}
             <div className="flex items-center justify-center gap-4 mt-10">
               <CarouselPrevious className="static translate-y-0 w-12 h-12 bg-white border-2 border-slate-200 text-slate-700 hover:bg-sky-500 hover:text-white hover:border-sky-500 shadow-md hover:shadow-lg transition-all duration-300" />
-              <div className="flex gap-1.5 px-4">
-                 <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-                 <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-                 <span className="w-2 h-2 rounded-full bg-slate-300"></span>
+
+              {/* Dynamic dots — เลื่อนตาม slide จริง */}
+              <div className="flex gap-2 px-4">
+                {Array.from({ length: count }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => scrollTo(i)}
+                    aria-label={`ไปสไลด์ ${i + 1}`}
+                    className={`rounded-full transition-all duration-300 ${
+                      i === current
+                        ? "w-5 h-2 bg-sky-500"
+                        : "w-2 h-2 bg-slate-300 hover:bg-slate-400"
+                    }`}
+                  />
+                ))}
               </div>
+
               <CarouselNext className="static translate-y-0 w-12 h-12 bg-sky-500 border-2 border-sky-500 text-white hover:bg-sky-600 hover:border-sky-600 shadow-md hover:shadow-lg shadow-sky-500/30 transition-all duration-300" />
             </div>
           </Carousel>
