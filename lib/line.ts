@@ -1,22 +1,18 @@
 import axios from "axios";
 import type { CartItem } from "@/lib/api/orders";
 
-const LINE_NOTIFY_TOKEN = process.env.LINE_NOTIFY_TOKEN ?? "";
-const LINE_CHANNEL_ACCESS_TOKEN =
-  process.env.LINE_CHANNEL_ACCESS_TOKEN ?? "";
+const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN ?? "";
+const ADMIN_LINE_USER_ID = process.env.ADMIN_LINE_USER_ID ?? "";
 
-// ─── LINE Notify (แจ้งเตือนร้านค้า) ─────────────────────────────────────────
-// ใช้ LINE Notify Token ที่ได้จาก https://notify-bot.line.me/
-// วิธีขอ: Login → Generate Token → ตั้งชื่อ → เลือกกลุ่มหรือตัวเอง → Copy
-
+// ─── LINE Messaging API (แจ้งเตือนร้านค้า) ─────────────────────────────────────────
 export async function sendAdminLineNotify(
   orderId: string,
   items: CartItem[],
   totalPrice: number,
   customerNote?: string
 ): Promise<void> {
-  if (!LINE_NOTIFY_TOKEN) {
-    console.warn("[LINE Notify] TOKEN not set. Skipping notification.");
+  if (!LINE_CHANNEL_ACCESS_TOKEN || !ADMIN_LINE_USER_ID) {
+    console.warn("[LINE] Token or Admin User ID not set. Skipping notification.");
     return;
   }
 
@@ -25,7 +21,6 @@ export async function sendAdminLineNotify(
     .join("\n");
 
   const message = [
-    "",
     "🔔 มีออเดอร์ใหม่!",
     "──────────────",
     `🆔 ออเดอร์: #${orderId.slice(-8).toUpperCase()}`,
@@ -36,21 +31,12 @@ export async function sendAdminLineNotify(
     `💰 ยอดรวม: ฿${totalPrice.toLocaleString()}`,
     customerNote ? `📝 หมายเหตุ: ${customerNote}` : null,
     "──────────────",
-    "⚡ กรุณาติดต่อลูกค้าทาง LINE OA ของร้านค้า",
+    "⚡ กรุณาเข้าไปตรวจสอบในระบบหลังบ้านครับ",
   ]
     .filter(Boolean)
     .join("\n");
 
-  await axios.post(
-    "https://notify-api.line.me/api/notify",
-    new URLSearchParams({ message }),
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Bearer ${LINE_NOTIFY_TOKEN}`,
-      },
-    }
-  );
+  await pushLineMessage(ADMIN_LINE_USER_ID, [{ type: "text", text: message }]);
 }
 
 // ─── LINE Messaging API (Push Message ไปหาลูกค้า) ───────────────────────────
