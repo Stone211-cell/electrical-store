@@ -7,13 +7,19 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { sessionClaims } = await auth();
+  const { userId, sessionClaims } = await auth();
+
+  // ยังไม่ได้ login → middleware จะจัดการ redirect ไปหน้า sign-in แล้ว
+  // แต่เผื่อกรณีที่ middleware ไม่ทำงาน ก็ redirect เองด้วย
+  if (!userId) {
+    redirect("/sign-in");
+  }
 
   // ตรวจสอบสิทธิ์ Admin (ตั้งค่า privateMetadata.isAdmin = "true" ใน Clerk Dashboard)
   const isAdmin = (sessionClaims?.metadata as { isAdmin?: string })?.isAdmin === "true";
 
   if (!isAdmin) {
-    redirect("/"); // ไม่ใช่ Admin เด้งกลับหน้าแรก
+    redirect("/"); // login แล้วแต่ไม่ใช่ Admin → เด้งกลับหน้าแรก
   }
 
   return (

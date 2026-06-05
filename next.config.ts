@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["@tabler/icons-react"],
   },
+  turbopack: {
+    root: __dirname,
+  },
 };
 
 export default nextConfig;
