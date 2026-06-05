@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { actionGetBlogPosts, actionCreateBlogPost } from "@/app/actions/blog";
-import { auth } from "@clerk/nextjs/server";
+import { checkIsAdmin } from "@/lib/admin";
 
 export async function GET() {
   try {
@@ -14,8 +14,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionClaims } = await auth();
-    const isAdmin = (sessionClaims?.metadata as { isAdmin?: string })?.isAdmin === "true";
+    const isAdmin = await checkIsAdmin();
     if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     const body = await request.json();
     const post = await actionCreateBlogPost(body);

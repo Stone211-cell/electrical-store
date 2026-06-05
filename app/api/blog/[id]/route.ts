@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { actionGetBlogPostById, actionUpdateBlogPost, actionDeleteBlogPost } from "@/app/actions/blog";
-import { auth } from "@clerk/nextjs/server";
+import { checkIsAdmin } from "@/lib/admin";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -19,8 +19,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 export async function PUT(request: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const { sessionClaims } = await auth();
-    const isAdmin = (sessionClaims?.metadata as { isAdmin?: string })?.isAdmin === "true";
+    const isAdmin = await checkIsAdmin();
     if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     const body = await request.json();
     const post = await actionUpdateBlogPost(id, body);
@@ -34,8 +33,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const { sessionClaims } = await auth();
-    const isAdmin = (sessionClaims?.metadata as { isAdmin?: string })?.isAdmin === "true";
+    const isAdmin = await checkIsAdmin();
     if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     await actionDeleteBlogPost(id);
     return NextResponse.json({ success: true });

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { actionCreateOrder, actionGetOrders } from "@/app/actions/orders";
-import { auth } from "@clerk/nextjs/server";
+import { checkIsAdmin } from "@/lib/admin";
 
 // GET /api/orders (Admin only)
 export async function GET() {
   try {
-    const { sessionClaims } = await auth();
-    const isAdmin = (sessionClaims?.metadata as { isAdmin?: string })?.isAdmin === "true";
+    const isAdmin = await checkIsAdmin();
     if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
     const orders = await actionGetOrders();

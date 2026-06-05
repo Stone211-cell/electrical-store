@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { actionGetProducts, actionCreateProduct } from "@/app/actions/products";
-import { auth } from "@clerk/nextjs/server";
+import { checkIsAdmin } from "@/lib/admin";
 
 // GET /api/products?categoryId=xxx&search=xxx
 export async function GET(request: NextRequest) {
@@ -20,8 +20,7 @@ export async function GET(request: NextRequest) {
 // POST /api/products  (Admin only)
 export async function POST(request: NextRequest) {
   try {
-    const { sessionClaims } = await auth();
-    const isAdmin = (sessionClaims?.metadata as { isAdmin?: string })?.isAdmin === "true";
+    const isAdmin = await checkIsAdmin();
     if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
     const body = await request.json();
